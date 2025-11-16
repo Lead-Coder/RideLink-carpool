@@ -36,7 +36,7 @@ const Reports = () => {
             animate={{ opacity: 1, y: 0 }}
           >
             <h1 className="text-4xl font-bold text-foreground mb-2">
-              Reports & Analytics 📈
+              Reports & Analytics
             </h1>
             <p className="text-muted-foreground mb-8">
               Track system performance and statistics

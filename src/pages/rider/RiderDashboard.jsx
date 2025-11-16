@@ -61,14 +61,13 @@ const RiderDashboard = () => {
             <h2 className="text-2xl font-bold text-foreground mb-6">Recent Bookings</h2>
             <div className="dashboard-card">
               <div className="space-y-4">
-                {[1, 2, 3].map((i) => (
+                {[1, 2].map((i) => (
                   <div
                     key={i}
-                    className="flex items-center justify-between p-4 bg-secondary rounded-lg"
-                  >
+                    className="flex items-center justify-between p-4 bg-secondary rounded-lg">
                     <div>
-                      <p className="font-semibold text-foreground">Downtown to Airport</p>
-                      <p className="text-sm text-muted-foreground">Driver: John Smith</p>
+                      <p className="font-semibold text-foreground">Home to Airport</p>
+                      <p className="text-sm text-muted-foreground">Driver: Vinay Agarwal</p>
                     </div>
                     <div className="text-right">
                       <p className="font-bold text-primary">$25</p>

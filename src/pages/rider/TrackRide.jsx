@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Navbar from '../../components/Navbar';
 import Sidebar from '../../components/Sidebar';
@@ -8,6 +9,7 @@ import Modal from '../../components/Modal';
 import Toast from '../../components/Toast';
 
 const TrackRide = () => {
+  const navigate = useNavigate();
   const [selectedRide, setSelectedRide] = useState(null);
   const [showEndModal, setShowEndModal] = useState(false);
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
@@ -83,7 +85,7 @@ const TrackRide = () => {
             animate={{ opacity: 1, y: 0 }}
           >
             <h1 className="text-4xl font-bold text-foreground mb-2">
-              My Bookings 📋
+              My Bookings
             </h1>
             <p className="text-muted-foreground mb-8">
               Track and manage all your rides
@@ -174,7 +176,7 @@ const TrackRide = () => {
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           className="btn-outline w-full"
-                        >
+                          Navigate to="/rider/rate-ride" replace>
                           Rate Ride
                         </motion.button>
                       )}

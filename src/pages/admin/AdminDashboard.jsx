@@ -24,7 +24,7 @@ const AdminDashboard = () => {
             animate={{ opacity: 1, y: 0 }}
           >
             <h1 className="text-4xl font-bold text-foreground mb-2">
-              Admin Dashboard 👨‍💼
+              Admin Dashboard
             </h1>
             <p className="text-muted-foreground mb-8">
               System overview and management

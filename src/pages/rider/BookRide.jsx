@@ -11,11 +11,11 @@ const BookRide = () => {
 
   // Mock ride details
   const rideDetails = {
-    driver: 'John Smith',
+    driver: 'Vinay Agarwal',
     vehicle: 'Toyota Camry',
     fare: 25,
     seats: 1,
-    pickup: 'Downtown Station',
+    pickup: 'Home',
     destination: 'Airport Terminal',
     date: '2025-01-20',
     time: '09:00 AM',

@@ -64,7 +64,7 @@ const RateRide = () => {
             animate={{ opacity: 1, y: 0 }}
           >
             <h1 className="text-4xl font-bold text-foreground mb-2">
-              Rate Your Rides ⭐
+              Rate Your Rides
             </h1>
             <p className="text-muted-foreground mb-8">
               Help us improve by rating your recent experiences
