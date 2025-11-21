@@ -29,6 +29,17 @@ const Landing = () => {
       {/* Hero Section */}
       <section className="flex-1 flex items-center justify-center px-4 py-20">
         <div className="max-w-6xl mx-auto text-center">
+          
+          {/* ⭐ LOGO ADDED HERE */}
+          <motion.img
+            src="/logo.png"
+            alt="RideLink Logo"
+            className="w-40 h-40 rounded-xl mx-auto mb-8 object-cover"
+            initial={{ opacity: 0, scale: 0.7 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6 }}
+          />
+
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -38,6 +49,7 @@ const Landing = () => {
               RideLink Carpooling
               <span className="block text-primary mt-2">System</span>
             </h1>
+
             <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-2xl mx-auto">
               Share rides, save money, and reduce your carbon footprint with our smart carpooling platform
             </p>
@@ -52,6 +64,7 @@ const Landing = () => {
                   Get Started
                 </motion.button>
               </Link>
+
               <Link to="/register">
                 <motion.button
                   whileHover={{ scale: 1.05 }}

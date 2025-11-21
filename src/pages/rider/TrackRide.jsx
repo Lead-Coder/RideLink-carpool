@@ -107,7 +107,7 @@ const TrackRide = () => {
                           </p>
                         </div>
                         <span
-                          className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(
+                          className={`px-3 py-1 rounded-full text-sm font-semibold ₹{getStatusColor(
                             booking.status
                           )}`}
                         >
@@ -131,7 +131,7 @@ const TrackRide = () => {
                         <div>
                           <span className="text-muted-foreground">Fare:</span>
                           <span className="ml-2 text-primary font-bold">
-                            ${booking.fare}
+                            ₹{booking.fare}
                           </span>
                         </div>
                       </div>

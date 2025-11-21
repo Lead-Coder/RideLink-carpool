@@ -45,7 +45,7 @@ const Reports = () => {
             {/* Summary Stats */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
               <StatCard title="This Week" value="376" icon="🚗" />
-              <StatCard title="Total Revenue" value="$9,500" icon="💰" />
+              <StatCard title="Total Revenue" value="₹9,500" icon="💰" />
               <StatCard title="New Users" value="87" icon="👥" />
               <StatCard title="Completion Rate" value="94%" icon="✓" />
             </div>
@@ -134,9 +134,9 @@ const Reports = () => {
                     </tr>
                     <tr className="hover:bg-secondary">
                       <td className="py-3 px-4 text-foreground">Revenue</td>
-                      <td className="py-3 px-4 text-primary font-bold">$1,320</td>
-                      <td className="py-3 px-4 text-primary font-bold">$9,500</td>
-                      <td className="py-3 px-4 text-primary font-bold">$52,340</td>
+                      <td className="py-3 px-4 text-primary font-bold">₹1,320</td>
+                      <td className="py-3 px-4 text-primary font-bold">₹9,500</td>
+                      <td className="py-3 px-4 text-primary font-bold">₹52,340</td>
                     </tr>
                   </tbody>
                 </table>

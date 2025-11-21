@@ -71,7 +71,7 @@ const DriverDashboard = () => {
                       <p className="text-sm text-muted-foreground">3 bookings • 2025-01-20</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-primary">$75</p>
+                      <p className="font-bold text-primary">₹75</p>
                       <p className="text-sm text-muted-foreground">Upcoming</p>
                     </div>
                   </div>

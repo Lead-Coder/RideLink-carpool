@@ -112,7 +112,7 @@ const MyRides = () => {
                         </p>
                       </div>
                       <span
-                        className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(
+                        className={`px-3 py-1 rounded-full text-sm font-semibold ₹{getStatusColor(
                           ride.status
                         )}`}
                       >
@@ -132,12 +132,12 @@ const MyRides = () => {
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Fare/Seat</p>
-                        <p className="font-bold text-primary">${ride.fare}</p>
+                        <p className="font-bold text-primary">₹{ride.fare}</p>
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Total Earnings</p>
                         <p className="font-bold text-primary">
-                          ${ride.fare * ride.bookedSeats}
+                          ₹{ride.fare * ride.bookedSeats}
                         </p>
                       </div>
                     </div>

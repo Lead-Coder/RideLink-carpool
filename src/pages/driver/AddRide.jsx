@@ -1,10 +1,12 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Navbar from '../../components/Navbar';
 import Sidebar from '../../components/Sidebar';
 import Footer from '../../components/Footer';
 import Toast from '../../components/Toast';
+
+const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const AddRide = () => {
   const navigate = useNavigate();
@@ -19,18 +21,101 @@ const AddRide = () => {
     vehicleNumber: '',
   });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setToast({
-      show: true,
-      message: 'Ride added successfully!',
-      type: 'success',
-    });
-    setTimeout(() => {
-      navigate('/driver/my-rides');
-    }, 1500);
+  const [profile, setProfile] = useState(null);
+  const [loadingProfile, setLoadingProfile] = useState(true);
+
+  const showToast = (message, type = 'success') => {
+    setToast({ show: true, message, type });
+    setTimeout(() => setToast({ show: false, message: '', type }), 2500);
   };
 
+  useEffect(() => {
+    // fetch driver profile using stored email
+    const email = localStorage.getItem('email');
+    if (!email) {
+      setLoadingProfile(false);
+      return;
+    }
+    setLoadingProfile(true);
+    fetch(`${BACKEND_URL}/api/driver/profile?email=${encodeURIComponent(email)}`)
+      .then((r) => r.json())
+      .then((data) => {
+        setProfile(data);
+        if (data?.vehicleNumber) {
+          setRideData((prev) => ({ ...prev, vehicleNumber: data.vehicleNumber }));
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoadingProfile(false));
+  }, []);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    // For now show success toast and navigate to my-rides (you can expand to call /api/rides)
+    showToast('Ride added successfully!', 'success');
+    setTimeout(() => {
+      navigate('/driver/my-rides');
+    }, 1200);
+  };
+
+  // If profile loaded and not verified, show disabled message
+  if (!loadingProfile && profile && profile.verificationStatus !== 'verified') {
+    return (
+      <div className="page-container flex flex-col">
+        <Navbar userRole="driver" />
+        <div className="flex flex-1">
+          <Sidebar userRole="driver" />
+          <main className="flex-1 p-6 lg:p-8">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+              <div className="max-w-2xl mx-auto">
+                <div className="card text-center p-8">
+                  <h2 className="text-2xl font-bold mb-2">Add Ride — Disabled</h2>
+                  <p className="mb-4">
+                    Your account is currently <strong>{profile.verificationStatus}</strong>.
+                    You must complete document verification before you can create rides.
+                  </p>
+
+                  {profile.verificationStatus === 'not_verified' && (
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Upload driving license, vehicle paper and ID proof in your profile to set status to <strong>Pending</strong>.
+                    </p>
+                  )}
+
+                  {profile.verificationStatus === 'pending' && (
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Your documents have been submitted — they are under review. Please wait for admin approval.
+                    </p>
+                  )}
+
+                  {profile.verificationStatus === 'disapproved' && (
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Your documents were disapproved. Please re-upload correct documents.
+                    </p>
+                  )}
+
+                  <div className="flex gap-4 justify-center">
+                    <Link to="/driver/profile" className="btn-primary">Go to Profile</Link>
+                    <button onClick={() => navigate(-1)} className="btn-secondary">Back</button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </main>
+        </div>
+        <Footer />
+
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          isVisible={toast.show}
+          onClose={() => setToast({ ...toast, show: false })}
+        />
+      </div>
+    );
+  }
+
+  // else render normal AddRide form
   return (
     <div className="page-container flex flex-col">
       <Navbar userRole="driver" />
@@ -137,7 +222,7 @@ const AddRide = () => {
 
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-2">
-                        Fare per Seat ($)
+                        Fare per Seat (₹)
                       </label>
                       <input
                         type="number"

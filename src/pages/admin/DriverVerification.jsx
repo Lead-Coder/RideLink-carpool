@@ -1,101 +1,84 @@
-import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import Navbar from '../../components/Navbar';
-import Sidebar from '../../components/Sidebar';
-import Footer from '../../components/Footer';
-import Card from '../../components/Card';
-import Modal from '../../components/Modal';
-import Toast from '../../components/Toast';
+import { useEffect, useState } from "react";
+import Navbar from "../../components/Navbar";
+import Sidebar from "../../components/Sidebar";
+import Footer from "../../components/Footer";
+import Toast from "../../components/Toast";
+import Modal from "../../components/Modal";
+import { motion } from "framer-motion";
 
-const DriverVerification = () => {
+const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+export default function DriverVerification() {
+  const [drivers, setDrivers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const [selectedDriver, setSelectedDriver] = useState(null);
+  const [modalAction, setModalAction] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [modalAction, setModalAction] = useState('');
-  const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
-  const [dbDrivers, setDbDrivers] = useState([]);
+  const [toast, setToast] = useState({
+    show: false,
+    message: "",
+    type: "success",
+  });
 
-  // Load from MongoDB
+  const showToast = (msg, type = "success") => {
+    setToast({ show: true, message: msg, type });
+    setTimeout(() => setToast({ show: false }), 2000);
+  };
+
+  // Load pending drivers
   useEffect(() => {
-    const loadDrivers = async () => {
-      try {
-        const res = await fetch(`http://localhost:5000/api/verify-driver`);
-        const data = await res.json();
-        setDbDrivers(data);
-      } catch (err) {
-        console.error('Failed to fetch driver verifications', err);
-      }
-    };
-    loadDrivers();
+    fetchPendingDrivers();
   }, []);
 
-  // Hardcoded list remains the same
-  const pendingDrivers = [
-    {
-      id: 1,
-      name: 'Sameer Shah',
-      email: 'sameer.shah@email.com',
-      phone: '9175339003',
-      vehicleNumber: 'MH-XYZ-5678',
-      vehicleModel: 'Honda Civic',
-      appliedDate: '2025-01-15',
-      status: 'Pending',
-    },
-    {
-      id: 2,
-      name: 'Hiten Mehta',
-      email: 'hiten.mehta@email.com',
-      phone: '9278480283',
-      vehicleNumber: 'UP-DEF-9012',
-      vehicleModel: 'Tesla Model Y',
-      appliedDate: '2025-01-16',
-      status: 'Pending',
-    },
-  ];
+  const fetchPendingDrivers = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/admin/drivers?status=pending`);
+      const data = await res.json();
+      setDrivers(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const handleVerificationAction = (driver, action, isDb = false) => {
-    setSelectedDriver({ ...driver, isDb });
+  const openModal = (driver, action) => {
+    setSelectedDriver(driver);
     setModalAction(action);
     setShowModal(true);
   };
 
-  const confirmAction = async () => {
+  const reviewDriver = async () => {
+    if (!selectedDriver) return;
+
     setShowModal(false);
 
-    // If driver is from MongoDB
-    if (selectedDriver.isDb) {
-      try {
-        await fetch(
-          `http://localhost:5000/api/verify-driver/${selectedDriver._id}`,
-          { method: 'DELETE' }
-        );
+    try {
+      const res = await fetch(
+        `${BACKEND_URL}/api/admin/drivers/${selectedDriver._id}/review`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: modalAction }),
+        }
+      );
 
-        setDbDrivers(prev => prev.filter(d => d._id !== selectedDriver._id));
-      } catch (err) {
-        setToast({
-          show: true,
-          message: 'Failed to update verification status',
-          type: 'error',
-        });
-        return;
-      }
+      const data = await res.json();
+
+      if (!res.ok) return showToast(data.message || "Action failed", "error");
+
+      showToast(`Driver ${modalAction === "approve" ? "approved" : "rejected"}`, "success");
+
+      await fetchPendingDrivers();
+    } catch (err) {
+      showToast("Server error", "error");
     }
-
-    const message =
-      modalAction === 'approve'
-        ? `${selectedDriver?.driverName || selectedDriver?.name} has been approved`
-        : `${selectedDriver?.driverName || selectedDriver?.name} has been rejected`;
-
-    setToast({
-      show: true,
-      message,
-      type: modalAction === 'approve' ? 'success' : 'warning',
-    });
   };
 
-  const openPdf = (fileName) => {
-    window.open(`/${fileName}`, '_blank');
-  };
+  const docLink = (doc) => (doc ? `${BACKEND_URL}${doc.url}` : null);
 
   return (
     <div className="page-container flex flex-col">
@@ -104,234 +87,135 @@ const DriverVerification = () => {
       <div className="flex flex-1">
         <Sidebar userRole="admin" />
 
-        <main className="flex-1 p-6 lg:p-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">
-            Driver Verification
-          </h1>
-          <p className="text-muted-foreground mb-8">
-            Review and approve driver applications
+        <main className="flex-1 p-8">
+          <h1 className="text-4xl font-bold mb-2">Driver Verification</h1>
+          <p className="text-muted-foreground mb-6">
+            Review pending drivers & approve their registration
           </p>
 
-          {/* First show MongoDB entries */}
-          {dbDrivers.length > 0 && (
-            <div className="space-y-4 mb-10">
-              {dbDrivers.map((driver) => (
-                <Card key={driver._id}>
-                  <div className="space-y-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center text-3xl">👤</div>
-                        <div>
-                          <h3 className="text-xl font-bold text-foreground">{driver.driverName}</h3>
-                          <p className="text-muted-foreground">{driver.driverEmail}</p>
-                          <p className="text-sm text-muted-foreground">
-                            Applied: {new Date(driver.submittedAt).toLocaleDateString()}
-                          </p>
-                        </div>
-                      </div>
-                      <span className="px-3 py-1 rounded-full text-sm font-semibold bg-yellow-500 text-black">
-                        Pending
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 py-4 border-y border-border">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Phone</p>
-                        <p className="font-medium text-foreground">{driver.driverPhone}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Vehicle Model</p>
-                        <p className="font-medium text-foreground">{driver.vehicleModel}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Vehicle Number</p>
-                        <p className="font-medium text-foreground">{driver.vehicleNumber}</p>
-                      </div>
-                    </div>
-
-                    {/* Documents */}
+          {loading ? (
+            <p>Loading...</p>
+          ) : drivers.length === 0 ? (
+            <p className="text-center text-muted-foreground mt-10">
+              No pending drivers.
+            </p>
+          ) : (
+            <div className="space-y-6">
+              {drivers.map((driver) => (
+                <div key={driver._id} className="card p-6">
+                  <div className="flex justify-between items-center">
                     <div>
-                      <h4 className="font-semibold text-foreground mb-3">Submitted Documents</h4>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="p-4 bg-secondary rounded-lg text-center">
-                          <div className="text-4xl mb-2">📄</div>
-                          <p className="text-sm text-foreground font-medium">Driver License</p>
-                          <button
-                            className="text-primary text-sm hover:underline mt-1"
-                            onClick={() => openPdf('license.pdf')}>
-                            View Document
-                          </button>
-                        </div>
-
-                        <div className="p-4 bg-secondary rounded-lg text-center">
-                          <div className="text-4xl mb-2">🚗</div>
-                          <p className="text-sm text-foreground font-medium">Vehicle Registration</p>
-                          <button
-                            className="text-primary text-sm hover:underline mt-1"
-                            onClick={() => openPdf(driver.vehicleDocFileName || 'license.pdf')}>
-                            View Document
-                          </button>
-                        </div>
-                      </div>
+                      <h2 className="text-xl font-bold">{driver.name}</h2>
+                      <p className="text-muted-foreground">{driver.email}</p>
+                      <p className="text-muted-foreground">{driver.phone}</p>
                     </div>
 
-                    <div className="flex gap-4">
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => handleVerificationAction(driver, 'approve', true)}
-                        className="flex-1 bg-green-500 text-white px-6 py-3 rounded-xl font-semibold"
-                      >
-                        ✓ Approve
-                      </motion.button>
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => handleVerificationAction(driver, 'reject', true)}
-                        className="flex-1 bg-red-500 text-white px-6 py-3 rounded-xl font-semibold"
-                      >
-                        ✗ Reject
-                      </motion.button>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          )}
-
-          {/* Hardcoded list shown below */}
-          <div className="space-y-4">
-            {pendingDrivers.map((driver) => (
-              <Card key={driver.id}>
-                <div className="space-y-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center text-3xl">
-                        👤
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-foreground">
-                          {driver.name}
-                        </h3>
-                        <p className="text-muted-foreground">{driver.email}</p>
-                        <p className="text-sm text-muted-foreground">
-                          Applied: {driver.appliedDate}
-                        </p>
-                      </div>
-                    </div>
-                    <span className="px-3 py-1 rounded-full text-sm font-semibold bg-yellow-500 text-black">
-                      {driver.status}
+                    <span className="px-3 py-1 bg-yellow-400 rounded-full font-semibold text-black">
+                      Pending
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 py-4 border-y border-border">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Phone</p>
-                      <p className="font-medium text-foreground">{driver.phone}</p>
+                  <div className="grid md:grid-cols-2 gap-6 mt-6">
+                    {/* Document Block */}
+                    <div className="p-4 bg-secondary rounded">
+                      <h3 className="font-semibold mb-2">Driving License</h3>
+                      {driver.documents?.license ? (
+                        <a
+                          href={docLink(driver.documents.license)}
+                          target="_blank"
+                          className="text-primary underline"
+                        >
+                          View Document
+                        </a>
+                      ) : (
+                        <p className="text-muted-foreground">Not uploaded</p>
+                      )}
                     </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Vehicle Model</p>
-                      <p className="font-medium text-foreground">
-                        {driver.vehicleModel}
-                      </p>
+
+                    <div className="p-4 bg-secondary rounded">
+                      <h3 className="font-semibold mb-2">Vehicle Paper</h3>
+                      {driver.documents?.vehiclePaper ? (
+                        <a
+                          href={docLink(driver.documents.vehiclePaper)}
+                          target="_blank"
+                          className="text-primary underline"
+                        >
+                          View Document
+                        </a>
+                      ) : (
+                        <p className="text-muted-foreground">Not uploaded</p>
+                      )}
                     </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Vehicle Number</p>
-                      <p className="font-medium text-foreground">
-                        {driver.vehicleNumber}
-                      </p>
+
+                    <div className="p-4 bg-secondary rounded">
+                      <h3 className="font-semibold mb-2">ID Proof (Aadhar)</h3>
+                      {driver.documents?.idProof ? (
+                        <a
+                          href={docLink(driver.documents.idProof)}
+                          target="_blank"
+                          className="text-primary underline"
+                        >
+                          View Document
+                        </a>
+                      ) : (
+                        <p className="text-muted-foreground">Not uploaded</p>
+                      )}
                     </div>
                   </div>
 
-                  <div>
-                    <h4 className="font-semibold text-foreground mb-3">
-                      Submitted Documents
-                    </h4>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="p-4 bg-secondary rounded-lg text-center">
-                        <div className="text-4xl mb-2">📄</div>
-                        <p className="text-sm text-foreground font-medium">
-                          Driver License
-                        </p>
-                        <button
-                          className="text-primary text-sm hover:underline mt-1"
-                          onClick={() => openPdf('license.pdf')}
-                        >
-                          View Document
-                        </button>
-                      </div>
-                      <div className="p-4 bg-secondary rounded-lg text-center">
-                        <div className="text-4xl mb-2">🚗</div>
-                        <p className="text-sm text-foreground font-medium">
-                          Vehicle Registration
-                        </p>
-                        <button
-                          className="text-primary text-sm hover:underline mt-1"
-                          onClick={() => openPdf('license.pdf')}
-                        >
-                          View Document
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-4">
+                  <div className="flex gap-4 mt-6">
                     <motion.button
-                      whileHover={{ scale: 1.05 }}
+                      whileHover={{ scale: 1.03 }}
                       whileTap={{ scale: 0.95 }}
-                      onClick={() => handleVerificationAction(driver, 'approve')}
-                      className="flex-1 bg-green-500 text-white px-6 py-3 rounded-xl font-semibold"
+                      onClick={() => openModal(driver, "approve")}
+                      className="flex-1 bg-green-500 text-white py-3 rounded-xl"
                     >
                       ✓ Approve
                     </motion.button>
+
                     <motion.button
-                      whileHover={{ scale: 1.05 }}
+                      whileHover={{ scale: 1.03 }}
                       whileTap={{ scale: 0.95 }}
-                      onClick={() => handleVerificationAction(driver, 'reject')}
-                      className="flex-1 bg-red-500 text-white px-6 py-3 rounded-xl font-semibold"
+                      onClick={() => openModal(driver, "reject")}
+                      className="flex-1 bg-red-500 text-white py-3 rounded-xl"
                     >
                       ✗ Reject
                     </motion.button>
                   </div>
                 </div>
-              </Card>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </main>
       </div>
 
       <Footer />
 
+      {/* Confirm Modal */}
       <Modal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        title={modalAction === 'approve' ? 'Approve Driver' : 'Reject Driver'}
+        title={`${modalAction === "approve" ? "Approve" : "Reject"} Driver`}
       >
-        <div className="py-4">
-          <p className="text-foreground mb-6">
-            Are you sure you want to {modalAction} {selectedDriver?.driverName || selectedDriver?.name}'s application?
+        <div className="p-4">
+          <p className="mb-6">
+            Are you sure you want to {modalAction}{" "}
+            <strong>{selectedDriver?.name}</strong>?
           </p>
+
           <div className="flex gap-4">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setShowModal(false)}
-              className="btn-secondary flex-1"
-            >
+            <button className="btn-secondary flex-1" onClick={() => setShowModal(false)}>
               Cancel
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={confirmAction}
-              className={`flex-1 px-6 py-3 rounded-xl font-semibold ${
-                modalAction === 'approve'
-                  ? 'bg-green-500 text-white hover:bg-green-600'
-                  : 'bg-red-500 text-white hover:bg-red-600'
+            </button>
+
+            <button
+              className={`flex-1 py-2 rounded-xl text-white ${
+                modalAction === "approve" ? "bg-green-500" : "bg-red-500"
               }`}
+              onClick={reviewDriver}
             >
               Confirm
-            </motion.button>
+            </button>
           </div>
         </div>
       </Modal>
@@ -344,6 +228,4 @@ const DriverVerification = () => {
       />
     </div>
   );
-};
-
-export default DriverVerification;
+}

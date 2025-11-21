@@ -35,7 +35,7 @@ const AdminDashboard = () => {
               <StatCard title="Total Users" value="1,247" icon="👥" />
               <StatCard title="Active Rides" value="58" icon="🚗" />
               <StatCard title="Verified Drivers" value="423" />
-              <StatCard title="Total Revenue" value="$52,340" icon="💰" />
+              <StatCard title="Total Revenue" value="₹52,340" icon="💰" />
             </div>
 
             {/* Quick Actions */}

@@ -111,7 +111,7 @@ const BookRide = () => {
                         Total Fare:
                       </span>
                       <span className="text-4xl font-bold text-primary">
-                        ${rideDetails.fare}
+                        ₹{rideDetails.fare}
                       </span>
                     </div>
                   </div>

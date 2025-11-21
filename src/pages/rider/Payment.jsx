@@ -59,17 +59,17 @@ const Payment = () => {
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Ride Fare</span>
                     <span className="font-semibold text-foreground">
-                      ${rideDetails?.fare || 25}
+                      ₹{rideDetails?.fare || 25}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Service Fee</span>
-                    <span className="font-semibold text-foreground">$2</span>
+                    <span className="font-semibold text-foreground">₹2</span>
                   </div>
                   <div className="pt-3 border-t border-border flex justify-between">
                     <span className="text-xl font-bold text-foreground">Total</span>
                     <span className="text-2xl font-bold text-primary">
-                      ${(rideDetails?.fare || 25) + 2}
+                      ₹{(rideDetails?.fare || 25) + 2}
                     </span>
                   </div>
                 </div>
@@ -87,7 +87,7 @@ const Payment = () => {
                     <button
                       type="button"
                       onClick={() => setPaymentMethod('card')}
-                      className={`flex-1 p-4 rounded-lg border-2 transition-all ${
+                      className={`flex-1 p-4 rounded-lg border-2 transition-all ₹{
                         paymentMethod === 'card'
                           ? 'border-primary bg-primary/10'
                           : 'border-border hover:border-primary/50'
@@ -101,7 +101,7 @@ const Payment = () => {
                     <button
                       type="button"
                       onClick={() => setPaymentMethod('upi')}
-                      className={`flex-1 p-4 rounded-lg border-2 transition-all ${
+                      className={`flex-1 p-4 rounded-lg border-2 transition-all ₹{
                         paymentMethod === 'upi'
                           ? 'border-primary bg-primary/10'
                           : 'border-border hover:border-primary/50'
@@ -202,7 +202,7 @@ const Payment = () => {
                     type="submit"
                     className="w-full btn-primary"
                   >
-                    Pay ${(rideDetails?.fare || 25) + 2}
+                    Pay ₹{(rideDetails?.fare || 25) + 2}
                   </motion.button>
                 </form>
               </div>

@@ -34,7 +34,7 @@ const RiderDashboard = () => {
             {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <StatCard title="Total Rides" value="24" icon="🚗" />
-              <StatCard title="Amount Spent" value="$450" icon="💰" />
+              <StatCard title="Amount Spent" value="₹450" icon="💰" />
               <StatCard title="Avg Rating Given" value="4.5" icon="⭐" />
             </div>
 
@@ -70,7 +70,7 @@ const RiderDashboard = () => {
                       <p className="text-sm text-muted-foreground">Driver: Vinay Agarwal</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-primary">$25</p>
+                      <p className="font-bold text-primary">₹25</p>
                       <p className="text-sm text-muted-foreground">Completed</p>
                     </div>
                   </div>

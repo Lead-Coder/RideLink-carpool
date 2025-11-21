@@ -79,7 +79,7 @@ const SearchRide = () => {
       pickupLocation: searchData.pickup || '',
       dropLocation: searchData.destination || '',
       seatsBooked: Math.min(searchData.seats || 1, ride.seatsLeft),
-      dateTime: `${searchData.date || ''} ${searchData.time || ride.departureTime}`,
+      dateTime: `₹{searchData.date || ''} ₹{searchData.time || ride.departureTime}`,
       userId: bookingData.userId,
     });
     setBookingStatus(null);
@@ -126,7 +126,7 @@ const SearchRide = () => {
       const created = await res.json();
       setBookingStatus({
         success: true,
-        message: `Booking confirmed. Booking ID: ${created._id}`,
+        message: `Booking confirmed. Booking ID: ₹{created._id}`,
         booking: created,
       });
 
@@ -411,7 +411,7 @@ const SearchRide = () => {
                           </div>
 
                           {bookingStatus && (
-                            <div className={`mt-3 p-3 rounded ${bookingStatus.success ? 'bg-green-100' : 'bg-red-100'}`}>
+                            <div className={`mt-3 p-3 rounded ₹{bookingStatus.success ? 'bg-green-100' : 'bg-red-100'}`}>
                               <div className="font-medium">{bookingStatus.message}</div>
                               {bookingStatus.booking && (
                                 <div className="text-sm text-muted-foreground mt-1">
